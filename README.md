@@ -87,3 +87,4 @@ The server configuration (e.g., port, database path) is managed via `config/conf
 *   `interface/`: (Legacy) Protobuf definitions (currently unused).
 *   `DESIGN.md`: Detailed design documentation.
 # macroCreator
+# macroCreator
