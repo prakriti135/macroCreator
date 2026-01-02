@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:macro_creator/helperfunctions.dart';
-import 'package:macro_creator/structures.dart';
+import 'package:macroclient/helperfunctions.dart';
+import 'package:macroclient/structures.dart';
 
 import 'communication_functions.dart';
 

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:macro_creator/create_dataset.dart';
-import 'package:macro_creator/create_macro.dart';
-import 'package:macro_creator/error_status.dart';
-import 'package:macro_creator/export.dart';
-import 'package:macro_creator/information.dart';
-import 'package:macro_creator/inputs.dart';
-import 'package:macro_creator/inspect.dart';
-import 'package:macro_creator/notification_bar.dart';
-import 'package:macro_creator/structures.dart';
+import 'package:macroclient/create_dataset.dart';
+import 'package:macroclient/create_macro.dart';
+import 'package:macroclient/error_status.dart';
+import 'package:macroclient/export.dart';
+import 'package:macroclient/information.dart';
+import 'package:macroclient/inputs.dart';
+import 'package:macroclient/inspect.dart';
+import 'package:macroclient/notification_bar.dart';
+import 'package:macroclient/structures.dart';
 
 import 'communication_functions.dart';
 

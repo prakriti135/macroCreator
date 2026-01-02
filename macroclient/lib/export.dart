@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:macro_creator/structures.dart';
+import 'package:macroclient/structures.dart';
 import 'package:file_saver/file_saver.dart';
 
 import 'communication_functions.dart';

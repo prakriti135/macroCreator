@@ -3,8 +3,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:macro_creator/structures.dart';
-import 'package:macro_creator/helperfunctions.dart';
+import 'package:macroclient/structures.dart';
+import 'package:macroclient/helperfunctions.dart';
 
 void communicate(String url, RequestInterface request,
     ResponseInterface response, VoidCallback callback) {

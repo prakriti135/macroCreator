@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:macro_creator/structures.dart';
+import 'package:macroclient/structures.dart';
 
 class ErrorStatus extends StatefulWidget {
   final Global global;

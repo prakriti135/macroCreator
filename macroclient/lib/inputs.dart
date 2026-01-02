@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:macro_creator/structures.dart';
+import 'package:macroclient/structures.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:typed_data';
 import 'communication_functions.dart';

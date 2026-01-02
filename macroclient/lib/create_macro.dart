@@ -1,7 +1,7 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinbox/flutter_spinbox.dart';
-import 'package:macro_creator/structures.dart';
+import 'package:macroclient/structures.dart';
 
 import 'communication_functions.dart';
 import 'helperfunctions.dart' as helperfunctions;

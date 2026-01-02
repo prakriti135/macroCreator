@@ -16,7 +16,7 @@ $(error "The 'flutter' command was not found. Please ensure the Flutter SDK is i
 endif
 
 # Directories and names
-CLIENT_DIR := client
+CLIENT_DIR := macroclient
 SERVER_DIR := server
 BINARY_NAME:= macro-server
 
@@ -32,8 +32,8 @@ proto:
 	mkdir -p $(SERVER_DIR)/communication
 	mkdir -p $(CLIENT_DIR)/lib/communication
 	protoc --proto_path=interface \
-		--go_out=$(SERVER_DIR) --go_opt=module=macro/server \
-		--go-grpc_out=$(SERVER_DIR) --go-grpc_opt=module=macro/server \
+		--go_out=$(SERVER_DIR) --go_opt=module=macros/server \
+		--go-grpc_out=$(SERVER_DIR) --go-grpc_opt=module=macros/server \
 		interface/*.proto
 	protoc --proto_path=interface \
 		--dart_out=grpc:$(CLIENT_DIR)/lib/communication \
@@ -53,8 +53,8 @@ client-build:
 # Target to build the Go server
 server-build:
 	@echo ">>> Building Go server with version $(VERSION)..."
-	(cd $(SERVER_DIR) && go build $(LDFLAGS) -o ../$(BINARY_NAME))
-	@echo ">>> Build complete: ../$(BINARY_NAME)"
+	go build $(LDFLAGS) -o $(BINARY_NAME) main.go
+	@echo ">>> Build complete: $(BINARY_NAME)"
 
 # Target to clean up build artifacts
 clean:

@@ -24,6 +24,9 @@ func Listen(logDir string) {
 	r := gin.Default()
 	r.Use(cors.Default())
 
+	// Serve the static files from the "server/web" directory
+	r.Static("/", "./server/web")
+
 	r.POST("/saveCSVFiles", loadCSVFiles)
 	r.POST("/register", register)
 	r.POST("/getMacroDetails", getMacroInfo)
@@ -37,7 +40,7 @@ func Listen(logDir string) {
 	r.POST("/getMacros", getMacroInfo)
 	r.POST("/saveDatasetDetails", saveDSInfo)
 	r.POST("/getDatasets", getDatasetInfo)
-	r.POST("/getCompletedMacros",getCompletedMacros)
+	r.POST("/getCompletedMacros", getCompletedMacros)
 
 	err := r.Run(":8609")
 	if err != nil {

@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:macro_creator/structures.dart';
+import 'package:macroclient/structures.dart';
 
 
 showMessage(String message, bool error) {
