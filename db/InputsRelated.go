@@ -1,6 +1,7 @@
 package db
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -8,7 +9,69 @@ import (
 	"macro/utils"
 	"strconv"
 	"strings"
+
+	"github.com/xuri/excelize/v2"
 )
+
+func ReadTelecommandXLSX(data []byte) ([]utils.TCDatabase, error) {
+	var telecommands []utils.TCDatabase
+	f, err := excelize.OpenReader(bytes.NewReader(data))
+	if err != nil {
+		return nil, err
+	}
+
+	sheetName := "Base_Cmd_Info"
+	rows, err := f.GetRows(sheetName)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(rows) == 0 {
+		return telecommands, nil
+	}
+
+	header := rows[0]
+	colIndices := make(map[string]int)
+	for i, colName := range header {
+		switch colName {
+		case "CDB_Cmd_CID":
+			colIndices["CDB_Cmd_CID"] = i
+		case "CDB_Cmd_Mnemonic":
+			colIndices["CDB_Cmd_Mnemonic"] = i
+		case "Cmd_Code":
+			colIndices["Cmd_Code"] = i
+		case "Cmd_Type":
+			colIndices["Cmd_Type"] = i
+		}
+	}
+
+	for _, row := range rows[1:] {
+		var tc utils.TCDatabase
+		if cid, ok := colIndices["CDB_Cmd_CID"]; ok {
+			if len(row) > cid {
+				tc.CommandID = row[cid]
+			}
+		}
+		if mnemonic, ok := colIndices["CDB_Cmd_Mnemonic"]; ok {
+			if len(row) > mnemonic {
+				tc.CommandName = row[mnemonic]
+			}
+		}
+		if code, ok := colIndices["Cmd_Code"]; ok {
+			if len(row) > code {
+				tc.CommandCode = row[code]
+			}
+		}
+		if cmdType, ok := colIndices["Cmd_Type"]; ok {
+			if len(row) > cmdType {
+				tc.CommandType = row[cmdType]
+			}
+		}
+		telecommands = append(telecommands, tc)
+	}
+
+	return telecommands, nil
+}
 
 func ReadCSV(data []byte) []utils.MacroOrDSEntry {
 
@@ -231,7 +294,7 @@ func StoreTelecommand(cmdDetails utils.TCDatabase) bool {
 
 	var store database.StoreTelecommandsParams
 	store.CommandID = cmdDetails.CommandID
-	store.Code = "12345678"
+	store.Code = cmdDetails.CommandCode
 	store.Mnemonics = cmdDetails.CommandName
 	store.Type = cmdDetails.CommandType
 	ctx := context.Background()
@@ -270,7 +333,3 @@ func StoreMacroRelatedTCs(cmds string) bool {
 	}
 	return true
 }
-
-
-
-

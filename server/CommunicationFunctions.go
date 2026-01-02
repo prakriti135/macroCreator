@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -54,17 +55,46 @@ func loadCSVFiles(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
-	if request.FileType == "macro" {
+	switch request.FileType {
+	case "macro":
 		output := db.ReadCSV([]byte(request.FileData))
 		macros := db.GetMacrosOrDatasets(output)
 		response.OK = db.StoreMacroAddresses(macros)
-	}
-	if request.FileType == "dataset" {
+	case "dataset":
 		output := db.ReadCSV([]byte(request.FileData))
 		dataset := db.GetMacrosOrDatasets(output)
 		response.OK = db.StoreDatasetAddresses(dataset)
+	case "tc":
+		decoded, err := base64.StdEncoding.DecodeString(request.FileData)
+		if err != nil {
+			response.OK = false
+			response.Message = "Invalid file data"
+			c.JSON(http.StatusBadRequest, response)
+			return
+		}
+		telecommands, err := db.ReadTelecommandXLSX(decoded)
+		if err != nil {
+			response.OK = false
+			response.Message = "Failed to read telecommand file: " + err.Error()
+			c.JSON(http.StatusBadRequest, response)
+			return
+		}
+		if !db.ClearTelecommand() {
+			response.OK = false
+			response.Message = "Failed to clear telecommand table"
+			c.JSON(http.StatusBadRequest, response)
+			return
+		}
+		for _, tc := range telecommands {
+			if !db.StoreTelecommand(tc) {
+				response.OK = false
+				response.Message = "Failed to store telecommand"
+				c.JSON(http.StatusBadRequest, response)
+				return
+			}
+		}
+		response.OK = true
 	}
-	//convert to switch case
 	if !response.OK {
 		response.Message = "Unable to store address to database"
 	}
@@ -91,7 +121,7 @@ func getMacroInfo(c *gin.Context) {
 		return
 	}
 	var ok bool
-	macDetails, _,  ok := db.FetchMacroDetails(request.Param)
+	macDetails, _, ok := db.FetchMacroDetails(request.Param)
 	if !ok {
 		response.OK = false
 		response.Message = "Cannot read database"
@@ -153,7 +183,7 @@ func saveDSInfo(c *gin.Context) {
 		return
 	}
 	ok := db.ClearDatasetDetails(int64(request.Dataset.DatasetNo))
-	if !ok{
+	if !ok {
 		response.OK = false
 		response.Message = "Failed to clear DatasetDetails Table"
 		c.JSON(http.StatusOK, response)
@@ -191,18 +221,18 @@ func getDatasetInfo(c *gin.Context) {
 		return
 	}
 	var ok bool
-	fmt.Println("Request for DS No",request.Param)
+	fmt.Println("Request for DS No", request.Param)
 	dsDetails, ok := db.FetchDatasetDetails(request.Param)
 	if !ok {
 		macroNo := s.clientMap["MacroNumber"]
-		_,noOfCmds,_ := db.FetchMacroDetails(macroNo)
+		_, noOfCmds, _ := db.FetchMacroDetails(macroNo)
 		var ds = utils.DatasetDetails{}
 		ds.Data = make([]string, noOfCmds)
-		ds.Executions = make([]bool,noOfCmds)
-		ds.Times = make([]int,noOfCmds)
+		ds.Executions = make([]bool, noOfCmds)
+		ds.Times = make([]int, noOfCmds)
 		ds.DatasetNo, _ = strconv.Atoi(request.Param)
 		response.Dataset = ds
-		fmt.Printf("%+v\n",response.Dataset)
+		fmt.Printf("%+v\n", response.Dataset)
 		response.OK = true
 		response.Message = ""
 		c.IndentedJSON(http.StatusOK, response)
@@ -210,14 +240,13 @@ func getDatasetInfo(c *gin.Context) {
 	}
 	response.Dataset = dsDetails
 	description, ok := db.GetDescription(request.Param)
-	if !ok{
+	if !ok {
 		response.OK = false
 	}
 	response.OK = true
 	response.Message = description
 	c.IndentedJSON(http.StatusOK, response)
 }
-
 
 func saveValue(c *gin.Context) {
 	var request utils.ParameterRequest
@@ -299,9 +328,9 @@ func saveValues(c *gin.Context) {
 		response.OK = true
 		response.Message = ""
 		fmt.Println(s.clientMap)
-		desc := strings.Split(	s.clientMap[request.ParameterName], ";;;")
+		desc := strings.Split(s.clientMap[request.ParameterName], ";;;")
 		procedure, ok := db.GenerateProcedure(desc)
-		if !ok{
+		if !ok {
 			response.OK = false
 			response.Message = "Unable to generate Macros"
 		}
@@ -547,7 +576,7 @@ func getCompletedMacros(c *gin.Context) {
 		return
 
 	}
-	macros , _ := db.GetCompletedMacro()
+	macros, _ := db.GetCompletedMacro()
 	macroDetails, ok := db.GetCompletedMacros(macros)
 	if ok {
 		resp.Macros = macroDetails.Macros
