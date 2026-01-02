@@ -106,6 +106,7 @@ type TCDatabase struct {
 	CommandID   string
 	CommandName string
 	CommandType string
+	CommandCode string
 }
 
 type MultiValueRequest struct {

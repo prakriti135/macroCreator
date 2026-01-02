@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:macroclient/structures.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:typed_data';
+import 'dart:convert';
 import 'communication_functions.dart';
 import 'helperfunctions.dart' as HelperFunctions;
 
@@ -119,12 +120,12 @@ class _StateInputs extends State<Inputs> {
 
       if (file == "tc") {
         _tcfilename = result.files.single.name;
-        if (!_tcfilename.toLowerCase().endsWith('csv')) {
-          HelperFunctions.showMessage("Only CSV Files Supported", true);
+        if (!_tcfilename.toLowerCase().endsWith('xlsx')) {
+          HelperFunctions.showMessage("Only XLSX Files Supported", true);
           return;
         }
         var data = pFile.bytes ?? Uint8List(0);
-        _tcfileData = String.fromCharCodes(data);
+        _tcfileData = base64Encode(data);
         _tcFile.text = _tcfilename;
       }
     }
