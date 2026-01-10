@@ -20,7 +20,19 @@ func ReadTelecommandXLSX(data []byte) ([]utils.TCDatabase, error) {
 		return nil, err
 	}
 
-	sheetName := "Base_Cmd_Info"
+	targetSheet := "Base_Cmd_Info"
+	sheetName := ""
+	for _, name := range f.GetSheetList() {
+		if strings.EqualFold(name, targetSheet) {
+			sheetName = name
+			break
+		}
+	}
+
+	if sheetName == "" {
+		return nil, fmt.Errorf("sheet %s not found in the uploaded file", targetSheet)
+	}
+
 	rows, err := f.GetRows(sheetName)
 	if err != nil {
 		return nil, err
@@ -33,16 +45,20 @@ func ReadTelecommandXLSX(data []byte) ([]utils.TCDatabase, error) {
 	header := rows[0]
 	colIndices := make(map[string]int)
 	for i, colName := range header {
-		switch colName {
-		case "CDB_Cmd_CID":
+		switch {
+		case strings.EqualFold(colName, "CDB_Cmd_CID") || strings.EqualFold(colName, "cdb_cid"):
 			colIndices["CDB_Cmd_CID"] = i
-		case "CDB_Cmd_Mnemonic":
+		case strings.EqualFold(colName, "CDB_Cmd_Mnemonic") || strings.EqualFold(colName, "cdb_cmd_mnemonic"):
 			colIndices["CDB_Cmd_Mnemonic"] = i
-		case "Cmd_Code":
+		case strings.EqualFold(colName, "Cmd_Code") || strings.EqualFold(colName, "cmd_code"):
 			colIndices["Cmd_Code"] = i
-		case "Cmd_Type":
+		case strings.EqualFold(colName, "Cmd_Type") || strings.EqualFold(colName, "cmd_type"):
 			colIndices["Cmd_Type"] = i
 		}
+	}
+
+	if _, ok := colIndices["CDB_Cmd_CID"]; !ok {
+		return nil, fmt.Errorf("required column 'CDB_Cmd_CID' or 'cdb_cid' not found in sheet '%s'", sheetName)
 	}
 
 	for _, row := range rows[1:] {
@@ -231,11 +247,10 @@ func FetchMacroDetails(macroNo string) (utils.MacroDetails, int, bool) {
 	var macroDetails utils.MacroDetails
 	err = json.Unmarshal([]byte(details.Details), &macroDetails)
 	if err != nil {
-		return utils.MacroDetails{} , macroDetails.NoOfCommands, true
+		return utils.MacroDetails{}, macroDetails.NoOfCommands, true
 	}
-	return macroDetails,macroDetails.NoOfCommands, true
+	return macroDetails, macroDetails.NoOfCommands, true
 }
-
 
 func ClearDatasetDetails(dsNo int64) bool {
 	ctx := context.Background()
@@ -257,13 +272,13 @@ func StoreDatasetDetails(DSNo int, dsDetails utils.DatasetDetails, linkedMacro i
 	store.Details = dsDetailsStr
 	store.LinkedMacro = int64(linkedMacro)
 	store.Description = description
-	fmt.Println("Dataset details are:",store.Details, store.LinkedMacro, store.Description )
+	fmt.Println("Dataset details are:", store.Details, store.LinkedMacro, store.Description)
 
 	ctx := context.Background()
 	err = dbObject.StoreDatasetDetails(ctx, store)
-	if err != nil{
+	if err != nil {
 		return false
-	}else{
+	} else {
 		return true
 	}
 }
@@ -327,7 +342,7 @@ func StoreMacroRelatedTCs(cmds string) bool {
 	store.MasterMacroEnable = cmd[4]
 	ctx := context.Background()
 	err := dbObject.StoreMacroRelatedTCs(ctx, store)
-	if err != nil{
+	if err != nil {
 		fmt.Println("Cannot store macro related TCs")
 		return false
 	}

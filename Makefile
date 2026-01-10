@@ -42,6 +42,11 @@ proto:
 # Main build target
 build: client-build server-build
 
+# Target to fetch dependencies for the Flutter web client
+client-get:
+	@echo ">>> Fetching Flutter dependencies..."
+	(cd $(CLIENT_DIR) && $(FLUTTER) pub get)
+
 # Target to build the Flutter web client
 client-build:
 	@echo ">>> Building Flutter web client for offline deployment..."

@@ -236,6 +236,24 @@ class _StateInputs extends State<Inputs> {
     });
   }
 
+  void _uploadTCFile() {
+    if (_tcfileData == '') {
+      HelperFunctions.showMessage("Please select a file first", true);
+      return;
+    }
+    Acknowledgement ack = Acknowledgement();
+    loadCSVFiles(widget.global, _tcfileData, "tc", ack, () {
+      if (ack.ok) {
+        _getAllTCMnemonics();
+        widget.global.updateNotification(
+          "TC Database Updated from File",
+          NotificationType.success,
+          null,
+        );
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -475,7 +493,11 @@ class _StateInputs extends State<Inputs> {
     children.add(
       ElevatedButton.icon(
         onPressed: () {
-          _readTCDB();
+          if (_tcMode == 'fetch') {
+            _readTCDB();
+          } else {
+            _uploadTCFile();
+          }
         },
         label: Text('Submit'),
         icon: Icon(Icons.check_circle),
