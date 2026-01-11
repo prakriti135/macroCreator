@@ -282,6 +282,9 @@ class _StateInputs extends State<Inputs> {
         widthFactor: 0.4,
         heightFactor: 0.6,
         child: Card(
+          elevation: 4,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -323,6 +326,9 @@ class _StateInputs extends State<Inputs> {
         widthFactor: 0.4,
         heightFactor: 0.6,
         child: Card(
+          elevation: 4,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -423,35 +429,34 @@ class _StateInputs extends State<Inputs> {
     );
     children.add(Divider());
     children.add(
-      Flexible(
-        child: Row(
-          children: [
-            Flexible(
-              child: RadioListTile(
-                title: Text("Fetch"),
-                value: 'fetch',
-                groupValue: _tcMode,
-                onChanged: (value) {
-                  _tcMode = value ?? 'fetch';
-                  setState(() {});
-                },
-              ),
+      Row(
+        children: [
+          Flexible(
+            child: RadioListTile(
+              title: Text("Fetch"),
+              value: 'fetch',
+              groupValue: _tcMode,
+              onChanged: (value) {
+                _tcMode = value ?? 'fetch';
+                setState(() {});
+              },
             ),
-            Flexible(
-              child: RadioListTile(
-                title: Text("CDB File"),
-                value: 'cdb',
-                groupValue: _tcMode,
-                onChanged: (value) {
-                  _tcMode = value ?? 'fetch';
-                  setState(() {});
-                },
-              ),
+          ),
+          Flexible(
+            child: RadioListTile(
+              title: Text("CDB File"),
+              value: 'cdb',
+              groupValue: _tcMode,
+              onChanged: (value) {
+                _tcMode = value ?? 'fetch';
+                setState(() {});
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
+
     if (_tcMode == 'fetch') {
       children.add(
         TextFormField(
@@ -512,6 +517,9 @@ class _StateInputs extends State<Inputs> {
         widthFactor: 0.4,
         heightFactor: 0.6,
         child: Card(
+          elevation: 4,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(children: children),
@@ -529,6 +537,10 @@ class _StateInputs extends State<Inputs> {
           SizedBox(
             width: 250,
             child: Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
@@ -625,6 +637,8 @@ class _StateInputs extends State<Inputs> {
     return SizedBox(
       width: 250,
       child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(

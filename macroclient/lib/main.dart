@@ -18,14 +18,17 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       scaffoldMessengerKey: rootScaffoldMessengerKey,
       title: 'Macro Creator',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.teal,
+          brightness: Brightness.light,
+        ),
       ),
       home: const MyHomePage(title: 'Macro Creator'),
     );
@@ -42,7 +45,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String _option = '';
+  String _option = 'createMacro';
+  int _selectedIndex = 0;
   Global _global = Global();
 
   void _updateNotification(
@@ -91,93 +95,89 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      drawer: _getDrawer(context),
-      body: _getChild(),
-      bottomNavigationBar: BottomAppBar(
-        height: 64,
-        child: NotificationBar(
-          notification: _global.notification,
-          updateNotification: _updateNotification,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: _getNotificationChildren(),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _getDrawer(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
+      body: Row(
         children: [
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.inversePrimary,
+          NavigationRail(
+            selectedIndex: _selectedIndex,
+            labelType: NavigationRailLabelType.all,
+            onDestinationSelected: (int index) {
+              setState(() {
+                _selectedIndex = index;
+                switch (index) {
+                  case 0:
+                    _option = 'createMacro';
+                  case 1:
+                    _option = 'createDataset';
+                  case 2:
+                    _option = 'export';
+                  case 3:
+                    _option = 'inspect';
+                  case 4:
+                    _option = 'inputs';
+                  case 5:
+                    _option = 'information';
+                }
+              });
+            },
+            destinations: const <NavigationRailDestination>[
+              NavigationRailDestination(
+                icon: Icon(Icons.data_object_outlined),
+                selectedIcon: Icon(Icons.data_object),
+                label: Text('Macro'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.dynamic_feed_outlined),
+                selectedIcon: Icon(Icons.dynamic_feed),
+                label: Text('Dataset'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.file_download_outlined),
+                selectedIcon: Icon(Icons.file_download),
+                label: Text('Export'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.lightbulb_outline),
+                selectedIcon: Icon(Icons.lightbulb),
+                label: Text('Inspect'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.keyboard_outlined),
+                selectedIcon: Icon(Icons.keyboard),
+                label: Text('Inputs'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.info_outline),
+                selectedIcon: Icon(Icons.info),
+                label: Text('Info'),
+              ),
+            ],
+          ),
+          const VerticalDivider(thickness: 1, width: 1),
+          Expanded(
+            child: Scaffold(
+              appBar: AppBar(
+                title: Text(widget.title),
+                backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+                actions: [
+                   Padding(
+                     padding: const EdgeInsets.only(right: 16.0),
+                     child: _getNotificationIcon(),
+                   ),
+                ],
+              ),
+              body: _getChild(),
+              bottomNavigationBar: BottomAppBar(
+                 height: 48,
+                 child: NotificationBar(
+                    notification: _global.notification,
+                    updateNotification: _updateNotification,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: _getNotificationChildren(),
+                    ),
+                 ),
+              ),
             ),
-            child: Text(
-              'Choose Option',
-              style: TextStyle(color: Colors.white, fontSize: 24),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.data_object),
-            title: const Text('Create Macro'),
-            onTap: () {
-              Navigator.pop(context);
-              _option = 'createMacro';
-              setState(() {});
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.dynamic_feed),
-            title: const Text('Create Dataset'),
-            onTap: () {
-              Navigator.pop(context);
-              _option = 'createDataset';
-              setState(() {});
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.file_download),
-            title: const Text('Export'),
-            onTap: () {
-              Navigator.pop(context);
-              _option = 'export';
-              setState(() {});
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.lightbulb),
-            title: const Text('Inspect'),
-            onTap: () {
-              Navigator.pop(context);
-              _option = 'inspect';
-              setState(() {});
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.keyboard),
-            title: const Text('Inputs'),
-            onTap: () {
-              Navigator.pop(context);
-              _option = 'inputs';
-              setState(() {});
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.info_outline),
-            title: const Text('Information'),
-            onTap: () {
-              Navigator.pop(context);
-              _option = 'information';
-              setState(() {});
-            },
           ),
         ],
       ),
@@ -202,7 +202,7 @@ class _MyHomePageState extends State<MyHomePage> {
       case 'error':
         child = ErrorStatus(_global, reInit);
     }
-    return Padding(padding: EdgeInsets.all(8.0), child: child);
+    return Padding(padding: EdgeInsets.all(16.0), child: child);
   }
 
   void reInit() {
@@ -212,24 +212,26 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> _getNotificationChildren() {
     List<Widget> children = [];
     children
-      ..add(_getNotificationIcon())
+      ..add(const SizedBox(width: 8))
       ..add(Text(_global.notification.value))
       ..add(Spacer());
     if (_global.notification.serverConnected) {
       children
         ..add(Text('Server Connected'))
-        ..add(Icon(Icons.cloud_done_outlined, color: Colors.greenAccent));
+        ..add(SizedBox(width: 8))
+        ..add(Icon(Icons.cloud_done_outlined, color: Colors.green));
     } else {
       children
         ..add(Text('Server Not Connected'))
-        ..add(Icon(Icons.cloud_off, color: Colors.redAccent));
+        ..add(SizedBox(width: 8))
+        ..add(Icon(Icons.cloud_off, color: Colors.red));
     }
     children.add(
-      IconButton.filledTonal(
+      IconButton(
         onPressed: () {
           reInit();
         },
-        icon: Icon(Icons.sync, color: Colors.blueAccent),
+        icon: Icon(Icons.sync),
         tooltip: "Reconnect",
       ),
     );
@@ -239,13 +241,13 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _getNotificationIcon() {
     switch (_global.notification.notificationType) {
       case NotificationType.success:
-        return Icon(Icons.done_all_outlined, color: Colors.greenAccent);
+        return Icon(Icons.check_circle, color: Colors.green);
       case NotificationType.warning:
-        return Icon(Icons.warning_amber_outlined, color: Colors.amberAccent);
+        return Icon(Icons.warning_amber, color: Colors.orange);
       case NotificationType.error:
-        return Icon(Icons.error_outline_outlined, color: Colors.redAccent);
+        return Icon(Icons.error, color: Colors.red);
       case NotificationType.information:
-        return Icon(Icons.info_outline, color: Colors.blueAccent);
+        return Icon(Icons.info, color: Colors.blue);
     }
   }
 }
