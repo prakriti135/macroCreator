@@ -41,6 +41,7 @@ func Listen(logDir string) {
 	r.POST("/saveDatasetDetails", saveDSInfo)
 	r.POST("/getDatasets", getDatasetInfo)
 	r.POST("/getCompletedMacros", getCompletedMacros)
+	r.POST("/getInspectionData", getInspectionData)
 
 	err := r.Run(":8609")
 	if err != nil {

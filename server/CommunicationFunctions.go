@@ -591,3 +591,37 @@ func getCompletedMacros(c *gin.Context) {
 	}
 	c.IndentedJSON(http.StatusOK, resp)
 }
+
+func getInspectionData(c *gin.Context) {
+	var request utils.EmptyRequest
+	var response utils.InspectionResponse
+	response.OK = false
+	response.Message = ""
+
+	if err := c.BindJSON(&request); err != nil {
+		response.OK = false
+		response.Message = "Bad Request"
+		c.JSON(http.StatusOK, response)
+		return
+	}
+
+	s := getServer(request.ID)
+	if s == nil {
+		response.OK = false
+		response.Message = "Failed to get Client ID"
+		c.JSON(http.StatusOK, response)
+		return
+	}
+
+	items, ok := db.FetchAllInspectionData()
+	if !ok {
+		response.OK = false
+		response.Message = "Failed to fetch inspection data"
+		c.JSON(http.StatusOK, response)
+		return
+	}
+
+	response.Items = items
+	response.OK = true
+	c.JSON(http.StatusOK, response)
+}

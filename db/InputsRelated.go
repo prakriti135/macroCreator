@@ -348,3 +348,93 @@ func StoreMacroRelatedTCs(cmds string) bool {
 	}
 	return true
 }
+
+func FetchAllInspectionData() ([]utils.InspectionItem, bool) {
+	ctx := context.Background()
+
+	// Step 1: Get all completed datasets
+	completedMacros, err := dbObject.GetCompletedMacroDetails(ctx)
+	if err != nil {
+		fmt.Println("Cannot fetch completed macro details:", err.Error())
+		return nil, false
+	}
+
+	var inspectionItems []utils.InspectionItem
+
+	// Step 2: For each dataset, fetch and merge details
+	for _, row := range completedMacros {
+		macroNo := row.LinkedMacro
+		datasetNo := row.DatasetNo
+		description := row.Description
+
+		// Step 3: Fetch Macro Details
+		macroDetails, err := dbObject.GetMacroDetails(ctx, macroNo)
+		if err != nil {
+			fmt.Printf("Skipping Macro %d: %v\n", macroNo, err)
+			continue
+		}
+
+		// Step 4: Fetch Dataset Details
+		datasetDetails, err := dbObject.GetDatasetDetails(ctx, datasetNo)
+		if err != nil {
+			fmt.Printf("Skipping Dataset %d: %v\n", datasetNo, err)
+			continue
+		}
+
+		// Step 5: Unmarshal JSON
+		var macro utils.MacroDetails
+		err = json.Unmarshal([]byte(macroDetails.Details), &macro)
+		if err != nil {
+			fmt.Printf("Failed to unmarshal Macro %d: %v\n", macroNo, err)
+			continue
+		}
+
+		var dataset utils.DatasetDetails
+		err = json.Unmarshal([]byte(datasetDetails.Details), &dataset)
+		if err != nil {
+			fmt.Printf("Failed to unmarshal Dataset %d: %v\n", datasetNo, err)
+			continue
+		}
+
+		// Step 6: Merge Macro Commands with Dataset Data/Times
+		var commands []utils.InspectedCommand
+		for i := 0; i < macro.NoOfCommands; i++ {
+			data := ""
+			time := 0
+			executed := false
+
+			// Safely access dataset arrays
+			if i < len(dataset.Data) {
+				data = dataset.Data[i]
+			}
+			if i < len(dataset.Times) {
+				time = dataset.Times[i]
+			}
+			if i < len(dataset.Executions) {
+				executed = dataset.Executions[i]
+			}
+
+			cmd := utils.InspectedCommand{
+				Index:           i,
+				CommandMnemonic: macro.Commands[i].CommandMnemonic,
+				CommandCode:     macro.Commands[i].CommandCode,
+				Data:            data,
+				Time:            time,
+				Executed:        executed,
+			}
+			commands = append(commands, cmd)
+		}
+
+		// Step 7: Build Inspection Item
+		item := utils.InspectionItem{
+			MacroNo:     int(macroNo),
+			DatasetNo:   int(datasetNo),
+			Description: description,
+			Commands:    commands,
+		}
+
+		inspectionItems = append(inspectionItems, item)
+	}
+
+	return inspectionItems, true
+}

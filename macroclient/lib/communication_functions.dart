@@ -147,9 +147,11 @@ void getCompletedMacros(Global global, CompletedMacros response, VoidCallback ca
   communicate('${global.url}/getCompletedMacros', request, response, callback);
 }
 
-
-
-
+void getInspectionData(Global global, InspectionResponse response, VoidCallback callback) {
+  EmptyRequest request = EmptyRequest();
+  request.id = global.clientID;
+  communicate('${global.url}/getInspectionData', request, response, callback);
+}
 
 
 

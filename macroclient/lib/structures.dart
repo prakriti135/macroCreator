@@ -356,3 +356,72 @@ class CompletedMacro {
     description= jsonData["Description"] as String;
   }
 }
+
+class InspectedCommand {
+  int index = 0;
+  String commandMnemonic = '';
+  String commandCode = '';
+  String data = '';
+  int time = 0;
+  bool executed = false;
+
+  InspectedCommand();
+
+  void fromJSON(Map<String, dynamic> jsonData) {
+    index = jsonData['Index'] as int;
+    commandMnemonic = jsonData['CommandMnemonic'] as String;
+    commandCode = jsonData['CommandCode'] as String;
+    data = jsonData['Data'] as String;
+    time = jsonData['Time'] as int;
+    executed = jsonData['Executed'] as bool;
+  }
+}
+
+class InspectionItem {
+  int macroNo = 0;
+  int datasetNo = 0;
+  String description = '';
+  List<InspectedCommand> commands = [];
+
+  InspectionItem();
+
+  void fromJSON(Map<String, dynamic> jsonData) {
+    macroNo = jsonData['MacroNo'] as int;
+    datasetNo = jsonData['DatasetNo'] as int;
+    description = jsonData['Description'] as String;
+    
+    if (jsonData['Commands'] != null) {
+      commands = (jsonData['Commands'] as List)
+          .map((cmd) {
+            InspectedCommand command = InspectedCommand();
+            command.fromJSON(cmd as Map<String, dynamic>);
+            return command;
+          })
+          .toList();
+    }
+  }
+}
+
+class InspectionResponse with ResponseInterface {
+  List<InspectionItem> items = [];
+  bool ok = false;
+  String message = '';
+
+  InspectionResponse();
+
+  @override
+  void fromJSON(Map<String, dynamic> jsonData) {
+    ok = jsonData['OK'] as bool;
+    message = jsonData['Message'] as String;
+    
+    if (jsonData['Items'] != null) {
+      items = (jsonData['Items'] as List)
+          .map((item) {
+            InspectionItem inspectionItem = InspectionItem();
+            inspectionItem.fromJSON(item as Map<String, dynamic>);
+            return inspectionItem;
+          })
+          .toList();
+    }
+  }
+}

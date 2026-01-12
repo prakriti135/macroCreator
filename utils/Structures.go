@@ -126,3 +126,25 @@ type CompletedMacro struct {
 	DatasetNo   int
 	Description string
 }
+
+type InspectedCommand struct {
+	Index           int
+	CommandMnemonic string
+	CommandCode     string
+	Data            string
+	Time            int
+	Executed        bool
+}
+
+type InspectionItem struct {
+	MacroNo     int
+	DatasetNo   int
+	Description string
+	Commands    []InspectedCommand
+}
+
+type InspectionResponse struct {
+	Items   []InspectionItem
+	OK      bool
+	Message string
+}
